@@ -5,7 +5,7 @@ enpal_assessment_project:
       host: localhost
       password: admin
       port: 5432
-      schema: ""
+      schema: public_pipedrive_analytics
       threads: 1
       type: postgres
       user: admin
