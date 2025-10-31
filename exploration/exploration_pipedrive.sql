@@ -204,3 +204,57 @@ CREATE INDEX IF NOT EXISTS idx_deal_changes_deal_time
 
 CREATE INDEX IF NOT EXISTS idx_deal_changes_stage
   ON public.deal_changes (changed_field_key, new_value);
+
+
+/* ============================================================
+   8) PRIMARY KEYS — UNIQUENESS & STRUCTURAL VALIDATION
+   ============================================================ */
+
+-- 8.1 activity: each activity must have a unique ID
+SELECT
+  COUNT(activity_id) AS n_total,
+  COUNT(DISTINCT activity_id) AS n_unique,
+  COUNT(activity_id) - COUNT(DISTINCT activity_id) AS n_duplicates
+FROM public.activity;
+
+-- 8.2 deal_changes: uniqueness of the (deal_id, change_time) pair
+SELECT
+  COUNT(*) AS n_total,
+  COUNT(DISTINCT (deal_id, change_time)) AS n_unique_composite,
+  COUNT(*) - COUNT(DISTINCT (deal_id, change_time)) AS n_duplicates
+FROM public.deal_changes;
+
+-- 8.3 stages: each sales stage must be unique
+SELECT
+  COUNT(stage_id) AS n_total,
+  COUNT(DISTINCT stage_id) AS n_unique,
+  COUNT(stage_id) - COUNT(DISTINCT stage_id) AS n_duplicates
+FROM public.stages;
+
+-- 8.4 users: each user must have a unique ID
+SELECT
+  COUNT(id) AS n_total,
+  COUNT(DISTINCT id) AS n_unique,
+  COUNT(id) - COUNT(DISTINCT id) AS n_duplicates
+FROM public.users;
+
+-- 8.5 activity_types: each activity type must be unique
+SELECT
+  COUNT(id) AS n_total,
+  COUNT(DISTINCT id) AS n_unique,
+  COUNT(id) - COUNT(DISTINCT id) AS n_duplicates
+FROM public.activity_types;
+
+-- 8.6 fields: each custom field must be unique (fixed: field_key)
+SELECT
+  COUNT(field_key) AS n_total,
+  COUNT(DISTINCT field_key) AS n_unique,
+  COUNT(field_key) - COUNT(DISTINCT field_key) AS n_duplicates
+FROM public.fields;
+
+-- 8.7 activity duplicates detail (diagnostic)
+SELECT activity_id, COUNT(*) AS count
+FROM public.activity
+GROUP BY 1
+HAVING COUNT(*) > 1
+ORDER BY count DESC, activity_id;
