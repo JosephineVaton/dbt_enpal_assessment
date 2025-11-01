@@ -33,3 +33,5 @@ models:
   enpal_assessment_project:
     # Config indicated by + and applies to all files under models/example/
     +materialized: table
+    staging:
+      +materialized: view

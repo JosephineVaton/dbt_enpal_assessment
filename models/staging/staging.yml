@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: stg_activity
+    description: "Prepared activity log (calls, emails, meetings) with resolved type labels."
+    columns:
+      - name: activity_id
+        description: "Unique identifier of the activity."
+        tests: [not_null, unique]
+      - name: deal_id
+        description: "Deal linked to the activity."
+        tests: [not_null]
+      - name: add_time
+        description: "Creation timestamp in Pipedrive."
+        tests: [not_null]
+
+  - name: stg_deal_changes
+    description: "Event log of deal changes (e.g., stage updates)."
+    columns:
+      - name: deal_id
+        tests: [not_null]
+      - name: change_time
+        tests: [not_null]
+      - name: changed_field_key
+        tests: [not_null]
+
+  - name: stg_activity_types
+    description: "Reference of activity types."
+    columns:
+      - name: activity_type_id
+        tests: [not_null, unique]
+      - name: activity_type_name
+        tests: [not_null]
+
+  - name: stg_stages
+    description: "Reference of pipeline stages."
+    columns:
+      - name: stage_id
+        tests: [not_null, unique]
+      - name: stage_name
+        tests: [not_null]
+
+  - name: stg_users
+    description: "Reference of CRM users (sales reps)."
+    columns:
+      - name: user_id
+        tests: [not_null, unique]
+      - name: user_name
+        tests: [not_null]
+
+  - name: stg_fields
+    description: "Dictionary of custom fields."
+    columns:
+      - name: field_key
+        tests: [not_null, unique]
+      - name: field_name
+        tests: [not_null]

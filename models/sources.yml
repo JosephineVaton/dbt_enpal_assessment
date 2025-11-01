@@ -1,8 +1,11 @@
-version: 2
-
 sources:
-  - name: postgres_public
+  - name: pipedrive
     database: postgres
     schema: public
     tables:
       - name: activity
+      - name: activity_types
+      - name: deal_changes
+      - name: fields
+      - name: stages
+      - name: users
