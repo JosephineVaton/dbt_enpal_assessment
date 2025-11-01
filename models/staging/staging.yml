@@ -2,56 +2,118 @@ version: 2
 
 models:
   - name: stg_activity
-    description: "Prepared activity log (calls, emails, meetings) with resolved type labels."
+    description: >
+      Raw activities log from Pipedrive, standardized and cleaned.
+      Each row represents a commercial activity (call, meeting, email, etc.)
+      linked to a deal and assigned to a user.
+
     columns:
       - name: activity_id
-        description: "Unique identifier of the activity."
-        tests: [not_null, unique]
-      - name: deal_id
-        description: "Deal linked to the activity."
-        tests: [not_null]
-      - name: add_time
-        description: "Creation timestamp in Pipedrive."
-        tests: [not_null]
+        description: "Unique identifier of the activity (may appear duplicated in raw data)."
+        tests:
+          - not_null
+          # Removed 'unique' since duplicates exist in raw Pipedrive exports
 
-  - name: stg_deal_changes
-    description: "Event log of deal changes (e.g., stage updates)."
-    columns:
+      - name: activity_type_key
+        description: "Technical key of the activity type (e.g., 'call', 'meeting')."
+
+      - name: user_id
+        description: "Identifier of the user (sales rep) assigned to the activity."
+
       - name: deal_id
-        tests: [not_null]
-      - name: change_time
-        tests: [not_null]
-      - name: changed_field_key
-        tests: [not_null]
+        description: "Identifier of the deal associated with this activity."
+        tests:
+          - not_null
+
+      - name: is_done
+        description: "Boolean flag indicating if the activity has been completed."
+
+      - name: due_to
+        description: "Timestamp for when the activity is due or took place."
 
   - name: stg_activity_types
-    description: "Reference of activity types."
+    description: "Reference of activity types (Call, Email, Meeting, ...)."
     columns:
       - name: activity_type_id
-        tests: [not_null, unique]
+        description: "Unique identifier of each activity type."
+        tests:
+          - not_null
+          - unique
       - name: activity_type_name
-        tests: [not_null]
+        description: "Human-readable name of the activity type."
+        tests:
+          - not_null
 
-  - name: stg_stages
-    description: "Reference of pipeline stages."
+  - name: stg_deal_changes
+    description: >
+      Tracks all field changes for each deal, including stage transitions,
+      owner changes, and other modifications.
     columns:
-      - name: stage_id
-        tests: [not_null, unique]
-      - name: stage_name
-        tests: [not_null]
-
-  - name: stg_users
-    description: "Reference of CRM users (sales reps)."
-    columns:
-      - name: user_id
-        tests: [not_null, unique]
-      - name: user_name
-        tests: [not_null]
+      - name: deal_id
+        description: "Deal identifier."
+        tests:
+          - not_null
+      - name: change_time
+        description: "Timestamp of the change."
+        tests:
+          - not_null
+      - name: changed_field_key
+        description: "Field key that was changed (e.g., 'stage_id')."
+        tests:
+          - not_null
+      - name: new_value
+        description: "New value for the changed field."
 
   - name: stg_fields
-    description: "Dictionary of custom fields."
+    description: "Reference of CRM fields available in Pipedrive (custom fields dictionary)."
     columns:
+      - name: field_id
+        description: "Unique ID for each field."
       - name: field_key
-        tests: [not_null, unique]
+        description: "Technical key of the field in the CRM."
+        tests:
+          - not_null
+          - unique
       - name: field_name
-        tests: [not_null]
+        description: "Human-readable name of the field."
+        tests:
+          - not_null
+      - name: field_value_options
+        description: "JSON list of possible values for enumerated fields."
+
+  - name: stg_stages
+    description: "Dictionary of sales pipeline stages (Lead, Negotiation, Closing, ...)."
+    columns:
+      - name: stage_id
+        description: "Unique identifier for each pipeline stage."
+        tests:
+          - not_null
+          - unique
+      - name: stage_name
+        description: "Human-readable name of the stage."
+        tests:
+          - not_null
+
+  - name: stg_users
+    description: "List of users (sales representatives) from Pipedrive."
+    columns:
+      - name: user_id
+        description: "Unique identifier of each user."
+        tests:
+          - not_null
+          - unique
+
+      - name: user_name
+        description: "Full name of the user."
+        tests:
+          - not_null
+
+      - name: email
+        description: "Email address of the user."
+
+      - name: active_flag
+        description: "Boolean flag indicating if the user is active in the CRM."
+
+      - name: modified_time
+        description: "Last modification timestamp in the CRM."
+

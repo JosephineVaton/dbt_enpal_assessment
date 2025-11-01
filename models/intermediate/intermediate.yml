@@ -1,32 +1,36 @@
 version: 2
 
 models:
-  - name: int_stage_transitions
-    description: >
-      Journal des transitions de stage pour chaque deal.
-      Chaque ligne représente un passage d’un deal à une nouvelle étape du pipeline Pipedrive.
-    columns:
-      - name: deal_id
-        description: "Identifiant unique du deal."
-      - name: change_time
-        description: "Date et heure du changement de stage."
-      - name: stage_id
-        description: "Identifiant numérique du nouveau stage."
-      - name: stage_name
-        description: "Nom lisible du stage (ex: 'Negotiation')."
-
   - name: int_activity_events
     description: >
-      Journal des activités liées aux deals (appels, e-mails, réunions, etc.).
-      Chaque ligne représente une action commerciale enregistrée dans Pipedrive.
+      Combine Pipedrive activities with activity types and deals.
     columns:
       - name: deal_id
-        description: "Identifiant du deal concerné."
-      - name: activity_date
-        description: "Date de l’activité planifiée."
+        description: "Identifier of the related deal."
+        tests:
+          - not_null
       - name: activity_type_name
-        description: "Nom du type d’activité (Sales Call, Follow-up...)."
-      - name: activity_type_key
-        description: "Clé technique du type d’activité."
-      - name: is_completed
-        description: "Indique si l’activité a été réalisée (true/false)."
+        description: "Readable name of the activity type."
+        tests:
+          - not_null
+      - name: activity_date
+        description: "Date of the activity (timestamp)."
+        tests:
+          - not_null
+
+  - name: int_stage_transitions
+    description: >
+      Represents transitions of deals between pipeline stages.
+    columns:
+      - name: deal_id
+        description: "Unique deal identifier."
+        tests:
+          - not_null
+      - name: stage_name
+        description: "Readable name of the pipeline stage."
+        tests:
+          - not_null
+      - name: change_time
+        description: "Timestamp of the stage change."
+        tests:
+          - not_null
